@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="lib/lodash.js"></script>   
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <div id="dataUrl"></div>
+    <script>
+        var fileInput = document.querySelector('#fileInput');
+        var dataUrl = document.querySelector('#dataUrl');
+    
+        fileInput.onchange = function () {
+            var file = this.files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                dataUrl.innerHTML = reader.result;
+            };
+        };
+    </script>
+</body>
+

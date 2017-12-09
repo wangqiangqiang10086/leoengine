@@ -1,0 +1,46 @@
+{
+  "name": "leoengine",
+  "version": "0.0.1",
+  "devDependencies": {
+    "babel-cli": "^6.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-cache": "^0.5.0",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-imagemin": "^3.4.0",
+    "gulp-jshint": "^2.0.4",
+    "gulp-load-plugins": "^1.1.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-run-sequence": "^0.3.2",
+    "gulp-sourcemaps": "^2.6.1",
+    "gulp-uglify": "^1.4.1",
+    "gulp-util": "^3.0.1",
+    "gulp.spritesmith": "^6.5.1",
+    "imagemin-pngquant": "^5.0.1",
+    "iota-array": "^1.0.0",
+    "jshint": "^2.9.4",
+    "mustache": "^2.3.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "scripts": {
+    "build": "babel src -d dist -s",
+    "es6": "gulp es6-build",
+    "check": "gulp es6-check",
+    "debug": "gulp debug"
+  },
+  "jshintConfig": {
+    "esversion": 6
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "howler": "^2.0.5"
+  }
+}

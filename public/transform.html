@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="leoengine/leoengine.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+
+    <style>
+        canvas {
+            border: 1px solid #000;
+            width: 300px;
+            height: 300px;
+        }
+
+        ul {
+            margin: 0px;
+            padding: 0px;
+            list-style: none;
+            width: 1750px;
+            float: left;
+        }
+
+        ul li {
+            width: 350px;
+            height: 350px;
+            float: left;
+        }
+
+        ul li div {
+            width: 350px;
+            height: 350px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <ul>
+        <li>
+            <p>普通</p>
+            <canvas id="canvas0" width="300" height="300"></canvas>
+        </li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+
+        <li>
+            <p>直接旋转30°</p>
+            <canvas id="rotate0" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>中心点旋转30° rotate</p>
+            <canvas id="rotate1" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>中心点旋转30° transform</p>
+            <canvas id="rotate2" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>中心点旋转放大 rotate,scale</p>
+            <canvas id="rotate3" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>中心点旋转放大 transform</p>
+            <canvas id="rotate4" width="300" height="300"></canvas>
+        </li>
+
+        <li>
+            <p>直接放大2倍</p>
+            <canvas id="scale0" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>中心点放大2倍 scale</p>
+            <canvas id="scale1" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>中心点放大2倍 transform</p>
+            <canvas id="scale2" width="300" height="300"></canvas>
+        </li>
+        <li></li>
+        <li></li>
+
+
+
+        <li>
+            <p>skew transform</p>
+            <canvas id="skew0" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>skew transform 2</p>
+            <canvas id="skew1" width="300" height="300"></canvas>
+        </li>
+        <li>
+            <p>animate</p>
+            <canvas id="animate" width="300" height="300"></canvas>
+        </li>
+    </ul>
+
+
+
+
+
+
+
+    <script>
+        const RAD_PER_DEG = Math.PI / 180;
+        class Matrix2D {
+            constructor(a = 1, b = 0, c = 0, d = 1, tx = 0, ty = 0) {
+                this.a = a;
+                this.b = b;
+                this.c = c;
+                this.d = d;
+                this.tx = tx;
+                this.ty = ty;
+            }
+
+            translate(x, y) {
+
+            }
+
+            rotate(deg) {
+
+            }
+
+            scale(xRate, yRate) {
+
+            }
+
+            skew(degX, degY) {
+
+            }
+
+            concat(other) {
+                let a = this.a * other.a + this.c * other.b;
+                let b = this.b * other.a + this.d * other.b;
+                let c = this.a * other.c + this.c * other.d;
+                let d = this.b * other.c + this.d * other.d;
+                let tx = this.a * other.tx + this.c * other.ty + this.tx;
+                let ty = this.b * other.tx + this.d * other.ty + this.ty;
+
+                this.a = a;
+                this.b = b;
+                this.c = c;
+                this.d = d;
+                this.tx = tx;
+                this.ty = ty;
+            }
+        }
+
+
+        let x = 50;
+        let y = 25;
+        let width = 50;
+        let height = 25;
+
+        function toRad(deg) {
+            return deg * RAD_PER_DEG;
+        }
+        function toDeg(rad) {
+            return rad / RAD_PER_DEG;
+        }
+
+        drawCanvas0('canvas0');
+        drawCanvasRotate0('rotate0');
+        drawCanvasRotate1('rotate1');
+        drawCanvasRotate2('rotate2');
+        drawCanvasRotate3('rotate3');
+        drawCanvasRotate4('rotate4');
+
+        drawCanvasScale0('scale0');
+        drawCanvasScale1('scale1');
+        drawCanvasScale2('scale2');
+
+        drawCanvasSkew0('skew0');
+        drawCanvasSkew1('skew1');
+
+        function drawCanvas0(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.fillStyle = "red";
+            context.fillRect(x, y, width, height);
+        }
+
+        //普通旋转
+        function drawCanvasRotate0(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.save();
+            context.rotate(toRad(30));
+            context.fillStyle = "red";
+            context.fillRect(x, y, width, height);
+            context.restore();
+        }
+
+        //中心点旋转
+        function drawCanvasRotate1(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.save();
+            context.translate(x + 0.5 * width, y + 0.5 * height);
+            context.rotate(toRad(30));
+            context.fillStyle = "red";
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+            context.restore();
+
+            // 等同于 context.rotate(toRad(30));
+            /*
+            context.save();            
+            context.transform(cos, sin, -sin, cos, 0, 0);
+            context.fillRect(x, y, width, height);
+            context.restore();
+            */
+        }
+
+        //中心点旋转transform
+        function drawCanvasRotate2(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            let rad = toRad(30);
+            let sin = Math.sin(rad);
+            let cos = Math.cos(rad);
+
+            /*
+            * 中心点旋转 等同于
+            * context.translate(x + 0.5 * width, y + 0.5 * height);
+            * context.rotate(toRad(30));
+            */
+            context.save();
+
+
+            // let m1 = new Matrix2D(1, 0, 0, 1, x + 0.5 * width, y + 0.5 * height);
+            // m1.concat(new Matrix2D(cos, sin, -sin, cos, 0, 0));
+            // console.log(m1);
+
+
+            let m1 = new leoEngine.geom.Matrix2D();
+            m1.translate(x + 0.5 * width, y + 0.5 * height);
+            m1.rotate(30);
+
+            context.transform(m1.a, m1.b, m1.c, m1.d, m1.tx, m1.ty);
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+            context.restore();
+        }
+
+        //中心点旋转放大
+        function drawCanvasRotate3(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.save();
+            context.translate(x + 0.5 * width, y + 0.5 * height);
+            context.rotate(toRad(30));
+            context.scale(2, 2);
+            context.fillStyle = "red";
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+            context.restore();
+
+            // 等同于 context.rotate(toRad(30));
+            /*
+            context.save();            
+            context.transform(cos, sin, -sin, cos, 0, 0);
+            context.fillRect(x, y, width, height);
+            context.restore();
+            */
+        }
+
+        //中心点旋转放大 transform
+        function drawCanvasRotate4(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            let rad = toRad(30);
+            let sin = Math.sin(rad);
+            let cos = Math.cos(rad);
+
+            context.save();
+
+            // let m1 = new Matrix2D(1, 0, 0, 1, x + 0.5 * width, y + 0.5 * height);
+            // m1.concat(new Matrix2D(cos, sin, -sin, cos, 0, 0));
+            // m1.concat(new Matrix2D(2, 0, 0, 2, 0, 0));
+
+            let m1 = new leoEngine.geom.Matrix2D();
+            m1.translate(x + 0.5 * width, y + 0.5 * height);
+            m1.rotate(30);
+            m1.scale(2, 2);
+
+            context.transform(m1.a, m1.b, m1.c, m1.d, m1.tx, m1.ty);
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+            context.restore();
+        }
+
+        //直接缩放
+        function drawCanvasScale0(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.fillStyle = "yellow";
+            context.scale(2, 2);
+            context.fillRect(x, y, width, height);
+
+            //context.transform(2, 0, 0, 2, 0, 0);
+            //context.fillRect(x, y, width, height);
+        }
+
+        //中心点缩放
+        function drawCanvasScale1(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.fillStyle = "yellow";
+            context.translate(x + 0.5 * width, y + 0.5 * height);
+            context.scale(2, 2);
+            //context.fillRect(x, y, width, height);
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+        }
+
+        //中心点缩放transform
+        function drawCanvasScale2(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            context.fillStyle = "yellow";
+
+            // let m1 = new Matrix2D(1, 0, 0, 1, x + 0.5 * width, y + 0.5 * height);
+            // m1.concat(new Matrix2D(2, 0, 0, 2, 0, 0));
+
+            let m1 = new leoEngine.geom.Matrix2D();
+            m1.translate(x + 0.5 * width, y + 0.5 * height);
+            m1.scale(2, 2);
+
+            context.transform(m1.a, m1.b, m1.c, m1.d, m1.tx, m1.ty);
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+        }
+
+        //倾斜
+        function drawCanvasSkew0(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            let rad = toRad(30);
+
+            context.save();
+            context.fillStyle = "red";
+            let m1 = new Matrix2D(1, 0, 0, 1, 0, 0);
+            m1.concat(new Matrix2D(1, Math.tan(rad), 0, 1, 0, 0));
+            context.transform(m1.a, m1.b, m1.c, m1.d, m1.tx, m1.ty);
+            context.fillRect(0, 0, 100, 100)
+            context.stroke();
+            context.restore();
+
+            context.save();
+            context.fillStyle = "yellow";
+            context.transform(1, 0, Math.tan(rad), 1, 0, 0)
+            context.fillRect(0, 0, 100, 100)
+            context.stroke();
+            context.restore();
+        }
+
+        //倾斜2
+        function drawCanvasSkew1(id) {
+            let canvas = document.getElementById(id);
+            let context = canvas.getContext('2d');
+
+            let rad = toRad(30);
+
+            context.save();
+            context.fillStyle = "red";
+            let m1 = new leoEngine.geom.Matrix2D();
+            m1.skew(rad, 0);
+            context.transform(m1.a, m1.b, m1.c, m1.d, m1.tx, m1.ty);
+            context.fillRect(0, 0, 100, 100)
+            context.stroke();
+            context.restore();
+
+            context.save();
+            context.fillStyle = "yellow";
+            let m2 = new leoEngine.geom.Matrix2D();
+            m2.skew(0, rad);
+            context.transform(m2.a, m2.b, m2.c, m2.d, m2.tx, m2.ty);
+            context.fillRect(0, 0, 100, 100)
+            context.stroke();
+            context.restore();
+        }
+
+
+
+        let m1 = new Matrix2D(1, 4, 2, 5, 3, 6);
+        let m2 = new Matrix2D(3, 6, 2, 5, 1, 4);
+        m1.concat(m2);
+        //console.log(m1);
+
+
+        let canvas = document.getElementById("animate");
+        let context = canvas.getContext('2d');
+        let rad = toRad(30);
+        let sin = Math.sin(rad);
+        let cos = Math.cos(rad);
+        let ms = new Matrix2D(1, 0, 0, 1, x + 0.5 * width, y + 0.5 * height);
+        let m2d = new Matrix2D(1, 0, 0, 1, x + 0.5 * width, y + 0.5 * height);
+        m2d.concat(new Matrix2D(cos, sin, -sin, cos, 0, 0));
+        m2d.concat(new Matrix2D(2, 0, 0, 2, 0, 0));
+        drawCanvasAnimate();
+
+        let tween = new TWEEN.Tween(ms)
+            .to(m2d, 3000)
+            .start();
+
+        function drawCanvasAnimate() {
+            context.clearRect(0, 0, 300, 300);
+
+            context.save();
+            //context.transform(m2d.a, m2d.b, m2d.c, m2d.d, m2d.tx, m2d.ty);
+            context.transform(ms.a, ms.b, ms.c, ms.d, ms.tx, ms.ty);
+            context.fillRect(-0.5 * width, -0.5 * height, width, height);
+            context.restore();
+            TWEEN.update();
+            window.requestAnimationFrame(drawCanvasAnimate);
+        }
+
+        //矩阵前乘后乘法 结果不同
+        t1 = new leoEngine.geom.Matrix2D(cos, sin, -sin, cos, 10, 10);
+        t2 = t1.clone();
+        t1.concat(new Matrix2D(2, 0, 0, 2, 0, 0));
+        t2.preConcat(new Matrix2D(2, 0, 0, 2, 0, 0));
+        console.log(t1);
+        console.log(t2);
+
+    </script>
+</body>

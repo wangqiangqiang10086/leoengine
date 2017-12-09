@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+
+<body>
+    <script>
+        /*
+        ie9 mp3,wav
+        chrome6 ogg,mp3
+        safari5+ mp3,wav
+        FF3.6+ ogg,wav
+        opera10.5+ ogg,wav 
+        注:同时引入mp3和ogg格式
+
+        规定要检测的音频/视频类型。
+        常用值：
+        video/ogg
+        video/mp4
+        video/webm
+        audio/mpeg
+        audio/ogg
+        audio/mp4
+        常用值，包括编解码器：
+        video/ogg; codecs="theora, vorbis"
+        video/mp4; codecs="avc1.4D401E, mp4a.40.2"
+        video/webm; codecs="vp8.0, vorbis"
+        audio/ogg; codecs="vorbis"
+        audio/mp4; codecs="mp4a.40.5"
+        注释：如果包含编解码器，则只能返回 "probably"。
+        表示支持的级别。可能的值：
+        "probably" - 最有可能支持
+        "maybe" - 可能支持
+        "" - （空字符串）不支持
+        */
+        function checkAudio() {
+            var myAudio = document.createElement('audio');
+            var msg = "音频支持格式:";
+            if (myAudio.canPlayType) {
+                if ("" != myAudio.canPlayType('audio/mpeg')) {
+                    msg += "mp3;";
+                }
+                if ("" != myAudio.canPlayType('audio/ogg')) {
+                    msg += "ogg;";
+                }
+                if ("" != myAudio.canPlayType('audio/mp4')) {
+                    msg += "mp4;";
+                }
+            }
+            document.write(msg + "<br>");
+        }
+
+        function checkVideo() {
+            var myVideo = document.createElement('video');
+            var msg = "视频支持格式:";
+            if (myVideo.canPlayType) {
+                if ("" != myVideo.canPlayType('video/mp4')) {
+                    msg += "mp4;";
+                }
+                if ("" != myVideo.canPlayType('video/ogg')) {
+                    msg += "ogg;";
+                }
+                if ("" != myVideo.canPlayType('video/webm')) {
+                    msg += "webm;";
+                }
+            }
+            document.write(msg + "<br>");
+        }
+
+        checkAudio();
+        checkVideo();
+
+    </script>
+</body>
+
+</html>

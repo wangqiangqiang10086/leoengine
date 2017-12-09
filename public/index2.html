@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="lib/lodash.js"></script>
+    <script src="leoengine/leoengine.js"></script>    
+</head>
+
+<body style="background-color:#808080;">
+    <div id="fps" style="width:50px;height:50px;position:absolute;background-color:#000;color:white;">
+    </div>
+    <canvas id="canvas" width="640" height="360" style="background-color:white;"></canvas>
+
+    <script>
+        function ImagePreloader(images, basePath = '') {
+            return new Promise((resolve, reject) => {
+                let total = images.length,
+                    success = 0,
+                    failure = 0,
+                    abort = 0,
+                    totalImages = [];
+
+                let i = 0, oImage, imgPath;
+                for (; i < total; i++) {
+                    oImage = new Image();
+                    imgPath = images[i];
+
+                    oImage.onload = onload;
+                    oImage.onerror = onerror;
+                    oImage.onabort = onabort;
+                    oImage.src = basePath + imgPath;
+                    totalImages.push(oImage);
+                }
+
+                function onload() {
+                    success++;
+                    checkLoad();
+                }
+                function onerror() {
+                    failure++;
+                    checkLoad();
+                }
+                function onabort() {
+                    abort++;
+                    checkLoad();
+                }
+
+                function checkLoad() {
+                    if (total - success - failure - abort == 0) {
+                        resolve({ total: total, success: success, failure: failure, abort: abort, totalImages: totalImages });
+                    }
+                }
+            });
+        }
+        (() => {
+            const CG_DIC_KEYCODE = {
+                UP: 87,
+                RIGHT: 68,
+                DOWN: 83,
+                LEFT: 65,
+                ARROW_UP: 38,
+                ARROW_RIGHT: 39,
+                ARROW_DOWN: 40,
+                ARROW_LEFT: 37,
+                SPACE: 32,
+                KEYJ: 74,
+                KEYK: 75
+            };
+
+            let imgsMagicSrc = [];
+            for (let i = 0; i < 10; i++) {
+                imgsMagicSrc.push(`magic/2/0-${i}.png`);
+            }
+            new ImagePreloader(imgsMagicSrc, 'images/').then((res) => {
+                let imgMagicSource = res.totalImages;
+
+                let imgsSrc = [];
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 23; j++) {
+                        imgsSrc.push(`role/body/0/${i}-${j}.png`);
+                    }
+                }
+
+                new ImagePreloader(imgsSrc, 'images/').then((res) => {
+                    let imgSources = res.totalImages;
+                    let elementFps = document.getElementById("fps");
+
+                    let stage = new leoEngine.display.CGStage('canvas', true, {
+                        onFps: function (fps) {
+                            elementFps.innerText = "fps:" + fps;
+                        }
+                    });
+
+                    let role0 = new leoEngine.display.CGRole(100, 100, 100, 200);
+                    role0.initFrames(imgSources);
+
+                    stage.addChild(role0);
+
+                    let seqMagic = leoEngine.display.CGSequenceFrame.createFromImgs(imgMagicSource);
+                    seqMagic.play();
+                    stage.addChild(seqMagic);
+
+                    stage.render();
+
+                    let keyDirectionStack = [];
+                    let KeyDirectionArray = [CG_DIC_KEYCODE.UP, CG_DIC_KEYCODE.ARROW_UP, CG_DIC_KEYCODE.RIGHT, CG_DIC_KEYCODE.ARROW_RIGHT, CG_DIC_KEYCODE.DOWN, CG_DIC_KEYCODE.ARROW_DOWN, CG_DIC_KEYCODE.LEFT, CG_DIC_KEYCODE.ARROW_LEFT];
+                    document.addEventListener('keydown', (e) => {
+                        //console.log(e)
+                        let keyCode = e.keyCode;
+                        if (KeyDirectionArray.indexOf(keyCode) > -1) {
+                            let lastKeyCode = _.last(keyDirectionStack);
+                            if (!e.repeat) {
+                                switch (keyCode) {
+                                    case CG_DIC_KEYCODE.UP:
+                                    case CG_DIC_KEYCODE.ARROW_UP:
+                                        pushKeyDirectionStack(0);
+                                        break;
+                                    case CG_DIC_KEYCODE.RIGHT:
+                                    case CG_DIC_KEYCODE.ARROW_RIGHT:
+                                        pushKeyDirectionStack(2);
+                                        break;
+                                    case CG_DIC_KEYCODE.DOWN:
+                                    case CG_DIC_KEYCODE.ARROW_DOWN:
+                                        pushKeyDirectionStack(4);
+                                        break;
+                                    case CG_DIC_KEYCODE.LEFT:
+                                    case CG_DIC_KEYCODE.ARROW_LEFT:
+                                        pushKeyDirectionStack(6);
+                                        break;
+                                }
+                            }
+
+                            actionRun();
+
+                        } else {
+                            if (!e.repeat) {
+                                switch (keyCode) {
+                                    case CG_DIC_KEYCODE.KEYJ:
+                                        role0.action_attack0();
+                                        break;
+                                    case CG_DIC_KEYCODE.KEYK:
+                                        role0.action_attack1();
+                                        break;
+                                }
+                            }
+                        }
+
+                        function pushKeyDirectionStack(code) {
+                            if (keyDirectionStack.indexOf(code) == -1) {
+                                keyDirectionStack.push(code);
+                            }
+                        }
+
+                        function actionRun() {
+                            let [code0, code1] = _.takeRight(keyDirectionStack, 2).sort();
+
+                            if (code0 == undefined) return;
+
+                            if (code1 == undefined) {
+                                role0.action_run(code0);
+                            } else {
+                                let dCode = code0 + "" + code1;
+                                switch (dCode) {
+                                    case "02":
+                                        role0.action_run(1);
+                                        break;
+                                    case "24":
+                                        role0.action_run(3);
+                                        break;
+                                    case "46":
+                                        role0.action_run(5);
+                                        break;
+                                    case "06":
+                                        role0.action_run(7);
+                                        break;
+                                }
+                            }
+                        }
+
+                    });
+                    document.addEventListener('keyup', (e) => {
+                        //console.log(e)
+                        let keyCode = e.keyCode;
+                        let directionCode = null;
+
+                        switch (keyCode) {
+                            case CG_DIC_KEYCODE.UP:
+                            case CG_DIC_KEYCODE.ARROW_UP:
+                                directionCode = 0;
+                                break;
+                            case CG_DIC_KEYCODE.RIGHT:
+                            case CG_DIC_KEYCODE.ARROW_RIGHT:
+                                directionCode = 2;
+                                break;
+                            case CG_DIC_KEYCODE.DOWN:
+                            case CG_DIC_KEYCODE.ARROW_DOWN:
+                                directionCode = 4;
+                                break;
+                            case CG_DIC_KEYCODE.LEFT:
+                            case CG_DIC_KEYCODE.ARROW_LEFT:
+                                directionCode = 6;
+                                break;
+                        }
+
+                        if (directionCode != null) {
+                            _.pull(keyDirectionStack, directionCode);
+                            if (keyDirectionStack.length == 0) {
+                                role0.action_stand(directionCode);
+                            }
+                        }
+                    });
+
+                });
+
+            });
+        })();
+    </script>
+</body>
